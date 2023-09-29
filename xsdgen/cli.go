@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"aqwari.net/xml/internal/commandline"
-	"aqwari.net/xml/internal/gen"
-	"aqwari.net/xml/xsd"
+	"github.com/henryolik/go-xml/internal/commandline"
+	"github.com/henryolik/go-xml/internal/gen"
+	"github.com/henryolik/go-xml/xsd"
 )
 
 // GenCode reads all xml schema definitions from the provided
