@@ -153,7 +153,16 @@ func Parse(docs ...[]byte) ([]Schema, error) {
 		if err := s.parse(root); err != nil {
 			return nil, err
 		}
-		parsed[tns] = s
+
+		// If the namespace is spread across multiple XSD files merge the new
+		// Schema into the existing one.
+		if orig, ok := parsed[tns]; ok {
+			for k, v := range s.Types {
+				orig.Types[k] = v
+			}
+		} else {
+			parsed[tns] = s
+		}
 	}
 
 	for _, s := range parsed {
