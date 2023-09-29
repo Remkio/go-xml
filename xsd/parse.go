@@ -154,8 +154,12 @@ func Parse(docs ...[]byte) ([]Schema, error) {
 			return nil, err
 		}
 
+		// Following code by github.com/masonkatz
+		// https://github.com/SoftIron/go-xml/commit/32a6dcd23023d971f093552faff138f556a82085
+
 		// If the namespace is spread across multiple XSD files merge the new
 		// Schema into the existing one.
+
 		if orig, ok := parsed[tns]; ok {
 			for k, v := range s.Types {
 				orig.Types[k] = v
