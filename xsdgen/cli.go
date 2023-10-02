@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"go/ast"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -70,7 +70,7 @@ func (cfg *Config) readFiles(files ...string) ([][]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		b, err := ioutil.ReadFile(path)
+		b, err := os.ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
@@ -166,5 +166,5 @@ func (cfg *Config) GenCLI(arguments ...string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(*output, data, 0666)
+	return os.WriteFile(*output, data, 0666)
 }

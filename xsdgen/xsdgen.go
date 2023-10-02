@@ -82,7 +82,7 @@ type Code struct {
 // DocType retrieves the complexType for the provided target
 // namespace.
 func (c *Code) DocType(targetNS string) (*xsd.ComplexType, bool) {
-	key := xml.Name{targetNS, "_self"}
+	key := xml.Name{Space: targetNS, Local: "_self"}
 	doc, ok := c.types[key].(*xsd.ComplexType)
 	return doc, ok
 }
@@ -297,7 +297,7 @@ func (cfg *Config) expandComplexTypes(types []xsd.Type) []xsd.Type {
 		if b, ok := c.Base.(*xsd.ComplexType); ok {
 			if _, ok := index[b.Name]; !ok {
 				// should never happen
-				panic(fmt.Errorf("missing base type for %v.", c.Name))
+				panic(fmt.Errorf("missing base type for %v", c.Name))
 			}
 			graph.Add(i, index[b.Name])
 		}
@@ -323,7 +323,7 @@ func (cfg *Config) expandComplexTypes(types []xsd.Type) []xsd.Type {
 			shadowedAttributes[attr.Name] = struct{}{}
 		}
 
-		elements := []xsd.Element{}
+		var elements []xsd.Element
 		for _, el := range b.Elements {
 			if _, ok := shadowedElements[el.Name]; !ok {
 				elements = append(elements, el)

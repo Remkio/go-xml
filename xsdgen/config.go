@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"regexp"
 	"strings"
 
@@ -468,7 +470,7 @@ func (cfg *Config) expr(t xsd.Type) (ast.Expr, error) {
 	if t, ok := t.(xsd.Builtin); ok {
 		ex := builtinExpr(t)
 		if ex == nil {
-			return nil, fmt.Errorf("Unknown built-in type %q", t.Name().Local)
+			return nil, fmt.Errorf("unknown built-in type %q", t.Name().Local)
 		}
 		return ex, nil
 	}
@@ -484,7 +486,7 @@ func (cfg *Config) exprString(t xsd.Type) string {
 	if err := format.Node(&buf, nil, expr); err != nil {
 		// This should never happen, cfg.expr should always return a
 		// valid expression if err != nil
-		panic(fmt.Errorf("Error formatting node expression %#v: %v", expr, err))
+		panic(fmt.Errorf("error formatting node expression %#v: %v", expr, err))
 	}
 	return buf.String()
 }
@@ -499,7 +501,7 @@ func (cfg *Config) public(name xml.Name) string {
 	if cfg.nameTransform != nil {
 		name = cfg.nameTransform(name)
 	}
-	return strings.Title(name.Local)
+	return cases.Title(language.English, cases.NoLower).String(name.Local)
 }
 
 //
@@ -538,7 +540,7 @@ func (cfg *Config) parseSOAPArrayType(s xsd.Schema, t xsd.Type) xsd.Type {
 			continue
 		}
 		for _, a := range v.Attr {
-			if (a.Name != xml.Name{wsdl, "arrayType"}) {
+			if (a.Name != xml.Name{Space: wsdl, Local: "arrayType"}) {
 				continue
 			}
 			itemType = v.Resolve(a.Value)
@@ -776,12 +778,12 @@ func (cfg *Config) soapArrayToSlice(s spec) spec {
 	var baseType xml.Name
 	// the parseSOAPArray pre-processor would have replaced the wildcard
 	// element in the array with the appropriate type.
-	complex, ok := s.xsdType.(*xsd.ComplexType)
+	complexType, ok := s.xsdType.(*xsd.ComplexType)
 	if !ok {
 		return s
 	}
 
-	for _, el := range complex.Elements {
+	for _, el := range complexType.Elements {
 		if el.Wildcard {
 			baseType = xsd.XMLName(el.Type)
 			break
@@ -793,7 +795,7 @@ func (cfg *Config) soapArrayToSlice(s spec) spec {
 	}
 	cfg.debugf("flattening single-element slice struct type %s to []%v", s.name, slice.Elt)
 	tag := gen.TagKey(str.Fields.List[0], "xml")
-	xmltag := xml.Name{"", ",any"}
+	xmltag := xml.Name{Local: ",any"}
 
 	if tag != "" {
 		parts := strings.Split(tag, ",")

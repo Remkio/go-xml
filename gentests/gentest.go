@@ -1,4 +1,4 @@
-// Package gentest generates marshal/unmarshal tests for the
+// Package gentests generates marshal/unmarshal tests for the
 // xsdgen package.
 package gentests // import "github.com/henryolik/go-xml/gentests"
 

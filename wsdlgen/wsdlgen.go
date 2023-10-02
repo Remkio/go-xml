@@ -13,15 +13,17 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"go/ast"
-	"io/ioutil"
-	"strings"
-
 	"github.com/henryolik/go-xml/internal/gen"
 	"github.com/henryolik/go-xml/wsdl"
 	"github.com/henryolik/go-xml/xsd"
 	"github.com/henryolik/go-xml/xsdgen"
+	"go/ast"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"os"
 )
+
+var caser = cases.Title(language.English, cases.NoLower)
 
 // Types conforming to the Logger interface can receive information about
 // the code generation process.
@@ -99,7 +101,7 @@ func (cfg *Config) GenAST(files ...string) (*ast.File, error) {
 	}
 	docs := make([][]byte, 0, len(files))
 	for _, filename := range files {
-		if data, err := ioutil.ReadFile(filename); err != nil {
+		if data, err := os.ReadFile(filename); err != nil {
 			return nil, err
 		} else {
 			cfg.debugf("read %s", filename)
@@ -303,18 +305,18 @@ func (p *printer) opArgs(addr, method string, op wsdl.Operation, input, output w
 		}
 		args.input = append(args.input, vname+" "+inputType)
 		args.InputFields = append(args.InputFields, field{
-			Name:       strings.Title(part.Name),
+			Name:       caser.String(part.Name),
 			Type:       typ,
 			PublicType: exposeType(typ),
-			XMLName:    xml.Name{p.wsdl.TargetNS, part.Name},
+			XMLName:    xml.Name{Space: p.wsdl.TargetNS, Local: part.Name},
 			InputArg:   vname,
 		})
 	}
 	if len(args.input) > p.maxArgs {
-		args.InputType = strings.Title(args.InputName.Local)
+		args.InputType = caser.String(args.InputName.Local)
 		args.input = []string{"v " + args.InputName.Local}
 		for i, v := range input.Parts {
-			args.InputFields[i].InputArg = "v." + strings.Title(v.Name)
+			args.InputFields[i].InputArg = "v." + caser.String(v.Name)
 		}
 	}
 	args.OutputName = output.Name
@@ -326,13 +328,13 @@ func (p *printer) opArgs(addr, method string, op wsdl.Operation, input, output w
 		outputType := exposeType(typ)
 		args.output = append(args.output, outputType)
 		args.OutputFields = append(args.OutputFields, field{
-			Name:    strings.Title(part.Name),
+			Name:    caser.String(part.Name),
 			Type:    typ,
-			XMLName: xml.Name{p.wsdl.TargetNS, part.Name},
+			XMLName: xml.Name{Space: p.wsdl.TargetNS, Local: part.Name},
 		})
 	}
 	if len(args.output) > p.maxReturns {
-		args.ReturnType = strings.Title(args.OutputName.Local)
+		args.ReturnType = caser.String(args.OutputName.Local)
 		args.ReturnFields = make([]field, len(args.OutputFields))
 		for i, v := range args.OutputFields {
 			args.ReturnFields[i] = field{

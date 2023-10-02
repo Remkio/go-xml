@@ -5,17 +5,16 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-	"go/ast"
-	"io/ioutil"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/henryolik/go-xml/internal/gen"
 	"github.com/henryolik/go-xml/xmltree"
 	"github.com/henryolik/go-xml/xsd"
 	"github.com/henryolik/go-xml/xsdgen"
+	"go/ast"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 func glob(pat string) string {
@@ -65,7 +64,7 @@ func writeTestFiles(code, tests *ast.File, pkg string) error {
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(testFilename, testSrc, 0666); err != nil {
+	if err := os.WriteFile(testFilename, testSrc, 0666); err != nil {
 		return err
 	}
 
@@ -74,7 +73,7 @@ func writeTestFiles(code, tests *ast.File, pkg string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(codeFilename, codeSrc, 0666)
+	return os.WriteFile(codeFilename, codeSrc, 0666)
 }
 
 // Generates unit tests for xml marshal unmarshalling of
@@ -131,7 +130,7 @@ func genXSDTests(cfg xsdgen.Config, data []byte, pkg string) (code, tests *ast.F
 	}
 	params.DocStruct = expr
 	params.Pkg = pkg
-	fn, err := gen.Func("Test"+strings.Title(pkg)).
+	fn, err := gen.Func("Test"+cases.Title(language.English, cases.NoLower).String(pkg)).
 		Args("t *testing.T").
 		BodyTmpl(`
 			type Document {{.DocStruct}}
@@ -220,7 +219,7 @@ func findXSDTestCases() ([]testCase, error) {
 	}
 	result := make([]testCase, 0, len(filenames))
 	for _, xsdfile := range filenames {
-		if data, err := ioutil.ReadFile(xsdfile); err != nil {
+		if data, err := os.ReadFile(xsdfile); err != nil {
 			return nil, err
 		} else {
 			result = append(result, testCase{

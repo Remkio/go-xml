@@ -2,7 +2,7 @@
 
 ## Installation
 
-Requires go 1.9 or greater for golang.org/x/html dependency.
+Requires go 1.21 or greater for golang.org/x/html dependency.
 
 ```
 go get github.com/henryolik/go-xml/...

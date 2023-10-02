@@ -29,7 +29,7 @@ func TestNDFDGen(t *testing.T) {
 		// a public, shared service provided for free. It is not
 		// polite or appropriate to test against this endpoint as
 		// part of our frequent unit tests. The proper thing to do is
-		// to capture output from this service and use it to setup
+		// to capture output from this service and use it to set up
 		// a mock server. The following line can be removed to
 		// obtain such output. Please be responsible.
 		req.URL = nil

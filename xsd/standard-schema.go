@@ -1416,7 +1416,7 @@ var builtinSchema = Schema{
 }
 
 func init() {
-	builtinSchema.Types = make(map[xml.Name]Type, int(UnsignedShort))
+	builtinSchema.Types = make(map[xml.Name]Type, UnsignedShort)
 	for i := AnyType; i < UnsignedShort; i++ {
 		builtinSchema.Types[i.Name()] = i
 	}

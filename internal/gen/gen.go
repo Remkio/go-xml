@@ -14,6 +14,8 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"io"
 	"os"
 	"path/filepath"
@@ -25,8 +27,10 @@ import (
 	"golang.org/x/tools/imports"
 )
 
+var caser = cases.Title(language.English, cases.NoLower)
+
 var genFuncMap = template.FuncMap{
-	"title":    strings.Title,
+	"title":    caser.String,
 	"split":    strings.Split,
 	"join":     strings.Join,
 	"sanitize": Sanitize,
@@ -131,7 +135,7 @@ func String(s string) *ast.BasicLit {
 // Public turns a string into a public (uppercase)
 // identifier.
 func Public(name string) *ast.Ident {
-	return ast.NewIdent(strings.Title(name))
+	return ast.NewIdent(caser.String(name))
 }
 
 func constDecl(kind token.Token, args ...string) *ast.GenDecl {
@@ -333,7 +337,7 @@ func (fn *Function) Returns(values ...string) *Function {
 	return fn
 }
 
-// Comments sets the Godoc comments for the function.
+// Comment sets the Godoc comments for the function.
 func (fn *Function) Comment(s string) *Function {
 	fn.godoc = s
 	return fn

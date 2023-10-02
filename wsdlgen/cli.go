@@ -3,7 +3,6 @@ package wsdlgen
 import (
 	"errors"
 	"flag"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -73,7 +72,7 @@ func (cfg *Config) GenCLI(arguments ...string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(*output, data, 0666)
+	return os.WriteFile(*output, data, 0666)
 }
 
 // The GenCLI function generates Go source code using the default
