@@ -45,6 +45,12 @@ type BooksForm struct {
 
 type xsdDate time.Time
 
+func (t *xsdDate) UnmarshalText(text []byte) error {
+	return _unmarshalTime(text, (*time.Time)(t), "2006-01-02")
+}
+func (t xsdDate) MarshalText() ([]byte, error) {
+	return _marshalTime((time.Time)(t), "2006-01-02")
+}
 func (t xsdDate) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if (time.Time)(t).IsZero() {
 		return nil
@@ -62,20 +68,14 @@ func (t xsdDate) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	m, err := t.MarshalText()
 	return xml.Attr{Name: name, Value: string(m)}, err
 }
-func (t *xsdDate) UnmarshalText(text []byte) error {
-	return _unmarshalTime(text, (*time.Time)(t), "2006-01-02")
-}
-func (t xsdDate) MarshalText() ([]byte, error) {
-	return _marshalTime((time.Time)(t), "2006-01-02")
-}
 func _unmarshalTime(text []byte, t *time.Time, format string) (err error) {
 	s := string(bytes.TrimSpace(text))
 	*t, err = time.Parse(format, s)
 	if _, ok := err.(*time.ParseError); ok {
-		*t, err = time.Parse(format+"Z07:00", s)
+		*t, err = time.Parse(format, s)
 	}
 	return err
 }
 func _marshalTime(t time.Time, format string) ([]byte, error) {
-	return []byte(t.Format(format + "Z07:00")), nil
+	return []byte(t.Format(format)), nil
 }
