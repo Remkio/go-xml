@@ -628,7 +628,7 @@ func (cfg *Config) addStandardHelpers() {
 				s := string(bytes.TrimSpace(text))
 				*t, err = time.Parse(format, s)
 				if _, ok := err.(*time.ParseError); ok {
-					*t, err = time.Parse(format, s)
+					*t, err = time.Parse(strings.Replace(format, "Z07:00", "", 1), s)
 				}
 				return err
 			`),
