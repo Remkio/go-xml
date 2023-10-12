@@ -997,7 +997,7 @@ func (cfg *Config) addSpecMethods(s spec) (spec, error) {
 		Body(`return %s(t).MarshalText()`, helper.name).
 		MustDecl())
 
-	if timeBuiltin(s.xsdType) {
+	if timeBuiltin(t.Base) {
 		s.methods = append(s.methods, addTimeMarshalMethods(s.name)...)
 	}
 
