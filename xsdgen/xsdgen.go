@@ -938,6 +938,37 @@ func (cfg *Config) genSimpleType(t *xsd.SimpleType) ([]spec, error) {
 	return append(result, spec), nil
 }
 
+// Returns Marshal methods for datetime values.
+func addTimeMarshalMethods(typeName string) []*ast.FuncDecl {
+	return []*ast.FuncDecl{
+		gen.Func("MarshalXML").
+			Receiver("t "+typeName).
+			Args("e *xml.Encoder", "start xml.StartElement").
+			Returns("error").
+			Body(`
+						if (time.Time)(t).IsZero() {
+							return nil
+						}
+						m, err := t.MarshalText()
+						if err != nil {
+							return err
+						}
+						return e.EncodeElement(m, start)
+					`).MustDecl(),
+		gen.Func("MarshalXMLAttr").
+			Receiver("t "+typeName).
+			Args("name xml.Name").
+			Returns("xml.Attr", "error").
+			Body(`
+						if (time.Time)(t).IsZero() {
+							return xml.Attr{}, nil
+						}
+						m, err := t.MarshalText()
+						return xml.Attr{Name: name, Value: string(m)}, err
+					`).MustDecl(),
+	}
+}
+
 // Attach Marshal/Unmarshal methods to a simple type, if necessary.
 func (cfg *Config) addSpecMethods(s spec) (spec, error) {
 	t, ok := s.xsdType.(*xsd.SimpleType)
@@ -965,6 +996,10 @@ func (cfg *Config) addSpecMethods(s spec) (spec, error) {
 		Returns("[]byte", "error").
 		Body(`return %s(t).MarshalText()`, helper.name).
 		MustDecl())
+
+	if timeBuiltin(s.xsdType) {
+		s.methods = append(s.methods, addTimeMarshalMethods(s.name)...)
+	}
 
 	return s, nil
 }

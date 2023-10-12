@@ -5,7 +5,7 @@
       <title>The First Book</title>
       <genre>Fiction</genre>
       <price>44.95</price>
-      <pub_date>2000-10-01</pub_date>
+      <pub_date>2000-10-01Z</pub_date>
       <review>An amazing story of nothing.</review>
    </book>
 
@@ -15,6 +15,6 @@
       <genre>Poem</genre>
       <price>24.95</price>
       <review>Least poetic poems.</review>
-      <pub_date>2003-12-01</pub_date>
+      <pub_date>2003-12-01Z</pub_date>
    </book>
 </books>

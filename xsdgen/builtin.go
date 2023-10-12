@@ -29,6 +29,20 @@ func nonTrivialBuiltin(t xsd.Type) bool {
 	return false
 }
 
+// Returns true if t is of a datetime type
+func timeBuiltin(t xsd.Type) bool {
+	b, ok := t.(xsd.Builtin)
+	if !ok {
+		return false
+	}
+	switch b {
+	case xsd.Date, xsd.Time, xsd.DateTime,
+		xsd.GDay, xsd.GMonth, xsd.GMonthDay, xsd.GYear, xsd.GYearMonth:
+		return true
+	}
+	return false
+}
+
 // The 45 built-in types of the XSD schema
 var builtinTbl = []ast.Expr{
 	xsd.AnyType:       &ast.Ident{Name: "string"},

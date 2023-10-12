@@ -9,12 +9,12 @@ import (
 )
 
 type BookForm struct {
-	Author  string    `xml:"urn:books author"`
-	Title   string    `xml:"urn:books title"`
-	Genre   string    `xml:"urn:books genre"`
-	Price   float32   `xml:"urn:books price"`
-	Pubdate time.Time `xml:"urn:books pub_date"`
-	Review  string    `xml:"urn:books review"`
+	Author  string    `xml:"author"`
+	Title   string    `xml:"title"`
+	Genre   string    `xml:"genre"`
+	Price   float32   `xml:"price"`
+	Pubdate time.Time `xml:"pub_date"`
+	Review  string    `xml:"review"`
 	Name    string    `xml:"urn:books name,attr,omitempty"`
 }
 
@@ -22,7 +22,7 @@ func (t *BookForm) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	type T BookForm
 	var layout struct {
 		*T
-		Pubdate *xsdDate `xml:"urn:books pub_date"`
+		Pubdate *xsdDate `xml:"pub_date"`
 	}
 	layout.T = (*T)(t)
 	layout.Pubdate = (*xsdDate)(&layout.T.Pubdate)
@@ -32,7 +32,7 @@ func (t *BookForm) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type T BookForm
 	var overlay struct {
 		*T
-		Pubdate *xsdDate `xml:"urn:books pub_date"`
+		Pubdate *xsdDate `xml:"pub_date"`
 	}
 	overlay.T = (*T)(t)
 	overlay.Pubdate = (*xsdDate)(&overlay.T.Pubdate)
@@ -40,17 +40,11 @@ func (t *BookForm) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 }
 
 type BooksForm struct {
-	Book []BookForm `xml:"urn:books book,omitempty"`
+	Book []BookForm `xml:"book,omitempty"`
 }
 
 type xsdDate time.Time
 
-func (t *xsdDate) UnmarshalText(text []byte) error {
-	return _unmarshalTime(text, (*time.Time)(t), "2006-01-02")
-}
-func (t xsdDate) MarshalText() ([]byte, error) {
-	return []byte((time.Time)(t).Format("2006-01-02")), nil
-}
 func (t xsdDate) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if (time.Time)(t).IsZero() {
 		return nil
@@ -68,6 +62,12 @@ func (t xsdDate) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	m, err := t.MarshalText()
 	return xml.Attr{Name: name, Value: string(m)}, err
 }
+func (t *xsdDate) UnmarshalText(text []byte) error {
+	return _unmarshalTime(text, (*time.Time)(t), "2006-01-02")
+}
+func (t xsdDate) MarshalText() ([]byte, error) {
+	return _marshalTime((time.Time)(t), "2006-01-02")
+}
 func _unmarshalTime(text []byte, t *time.Time, format string) (err error) {
 	s := string(bytes.TrimSpace(text))
 	*t, err = time.Parse(format, s)
@@ -75,4 +75,7 @@ func _unmarshalTime(text []byte, t *time.Time, format string) (err error) {
 		*t, err = time.Parse(format+"Z07:00", s)
 	}
 	return err
+}
+func _marshalTime(t time.Time, format string) ([]byte, error) {
+	return []byte(t.Format(format + "Z07:00")), nil
 }
